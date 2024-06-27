@@ -1,0 +1,15 @@
+{
+  "type": "record",
+  "name": "DeliveryEvents",
+  "namespace": "com.hywenklis.springCloudStreamKafka.schema",
+  "fields": [
+    {
+      "name": "orderId",
+      "type": "string"
+    },
+    {
+      "name": "deliveryCompleted",
+      "type": "boolean"
+    }
+  ]
+}

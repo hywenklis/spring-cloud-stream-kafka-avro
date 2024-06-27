@@ -1,0 +1,90 @@
+server:
+  forward-headers-strategy: framework
+
+  error:
+    include-message: always
+
+  servlet:
+    context-path: /api
+
+spring:
+  application:
+    name: spring-cloud-stream-kafka-avro
+
+  main:
+    allow-bean-definition-overriding: true
+
+  datasource:
+    url: 'jdbc:h2:mem:db;DB_CLOSE_DELAY=-1'
+    username: 'sa'
+    password: 'sa'
+    h2:
+      console:
+        enabled: true
+        path: '/h2-console'
+
+    # Cloud Stream Configuration
+    cloud:
+      stream:
+        bindings:
+          # Order created events (produced)
+          order-created-events-out:
+            binder: kafka
+            destination: order-created  # Topic name (verb-based)
+            contentType: application/*+avro
+
+          # Order validation events (consumed)
+          order-validation-events-in:
+            binder: kafka
+            destination: order-created  # Topic name (assuming validation happens on order creation)
+            group: ${spring.application.name}-order-validation-events  # Consumer group for validation
+            contentType: application/*+avro
+
+          # Payment processing events (consumed)
+          payment-processing-events-in:
+            binder: kafka
+            destination: validate-order  # Topic name (verb-based)
+            group: ${spring.application.name}-payment-processing-events  # Consumer group for payment
+            contentType: application/*+avro
+
+          # Payment confirmation events (produced)
+          payment-confirmation-events-out:
+            binder: kafka
+            destination: payment-confirmed  # Topic name (verb-based)
+            contentType: application/*+avro
+
+          # Delivery processing events (consumed)
+          delivery-processing-events-in:
+            binder: kafka
+            destination: process-payment  # Topic name (assuming delivery happens after payment)  # Adjust if necessary
+            group: ${spring.application.name}-delivery  # Consumer group for delivery
+            contentType: application/*+avro
+
+          # Delivery confirmation events (produced)
+          delivery-confirmation-events-out:
+            binder: kafka
+            destination: delivery-completed  # Topic name (verb-based)
+            contentType: application/*+avro
+
+
+        # Kafka Binder Configuration
+        kafka:
+          binder:
+            brokers: localhost:29092  # Kafka broker address
+            auto-create-topics: true  # Automatically create new topics
+            auto-add-partitions: true  # Automatically add partitions to topics
+            health-timeout: 30s        # Kafka health check timeout
+            producer-properties:
+              key.serializer: org.apache.kafka.common.serialization.StringSerializer  # Key serializer
+              value.serializer: io.confluent.kafka.serializers.KafkaAvroSerializer  # Value serializer for Avro messages
+              schema.registry.url: http://localhost:8081  # Schema Registry URL
+            consumer-properties:
+              key.deserializer: org.apache.kafka.common.serialization.StringDeserializer  # Key deserializer
+              value.deserializer: io.confluent.kafka.serializers.KafkaAvroDeserializer  # Value deserializer for Avro messages
+              schema.registry.url: http://localhost:8081  # Schema Registry URL
+              specific.avro.reader: true  # Use specific Avro reader (recommended for performance)
+
+logging:
+  level:
+    org.springframework: INFO
+    net.elau.example.springcloudstreamkafkaavro: DEBUG

@@ -1,0 +1,23 @@
+{
+  "type": "record",
+  "name": "OrderCreatedEvents",
+  "namespace": "com.hywenklis.springCloudStreamKafka.schema",
+  "fields": [
+    {
+      "name": "id",
+      "type": "string"
+    },
+    {
+      "name": "clientId",
+      "type": "string"
+    },
+    {
+      "name": "value",
+      "type": "double"
+    },
+    {
+      "name": "status",
+      "type": "string"
+    }
+  ]
+}
