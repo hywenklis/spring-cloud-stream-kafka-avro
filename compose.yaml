@@ -45,7 +45,7 @@ services:
 #                               kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1 --topic queueing.example.customer.created'"
 
 
-  schema-registry:
+  kafka-schema-registry:
     image: confluentinc/cp-schema-registry:7.6.1
     hostname: kafka-schema-registry
     ports:
@@ -87,7 +87,7 @@ services:
       test: "curl -f http://localhost:8082 || exit 1"
 
   kafka-topics-ui:
-    image: landoop/kafka-topics-ui:0.9.5
+    image: landoop/kafka-topics-ui:0.9.4
     container_name: kafka-topics-ui
     restart: unless-stopped
     depends_on:
